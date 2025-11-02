@@ -31,7 +31,7 @@
             {% if messages %}
                 <ul class="flash-messages">
                 {% for category, message in messages %}
-                    <li class="flash-{{ category }}">{{ message }}</li>
+                    <li class="flash-{{ category }}">{{ message | safe }}</li>
                 {% endfor %}
                 </ul>
             {% endif %}
