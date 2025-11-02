@@ -185,3 +185,54 @@ def create_pos_order(user_id, cart_items, payment_type, stay_id=None):
         print(f"Erreur lors de la création de la commande POS : {e}")
         return False
     finally: conn.close()
+
+def get_order_details(order_id):
+    """Récupère les détails complets d'une commande pour l'impression du ticket."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Dictionnaire pour stocker les résultats
+    details = {}
+
+    # 1. Infos générales sur la commande
+    query_order = """
+        SELECT
+            cv.id,
+            cv.date_heure,
+            cv.total_net,
+            cv.statut_paiement,
+            p.mode_paiement,
+            u.nom_utilisateur,
+            s.client_nom,
+            c.numero AS chambre_numero
+        FROM commandes_ventes cv
+        JOIN utilisateurs u ON cv.utilisateur_id = u.id
+        LEFT JOIN paiements p ON cv.id = p.commande_id
+        LEFT JOIN sejours s ON cv.stay_id = s.id
+        LEFT JOIN chambres c ON s.chambre_id = c.id
+        WHERE cv.id = ?
+    """
+    cursor.execute(query_order, (order_id,))
+    order_info = cursor.fetchone()
+    if not order_info:
+        conn.close()
+        return None
+    details['order'] = dict(order_info)
+
+    # 2. Lignes de la commande (articles)
+    query_items = """
+        SELECT
+            p.nom,
+            lc.quantite,
+            lc.prix_unitaire_vente,
+            (lc.quantite * lc.prix_unitaire_vente) AS sous_total
+        FROM lignes_commande lc
+        JOIN produits_services p ON lc.produit_id = p.id
+        WHERE lc.commande_id = ?
+    """
+    cursor.execute(query_items, (order_id,))
+    items_info = cursor.fetchall()
+    details['items'] = [dict(row) for row in items_info]
+
+    conn.close()
+    return details

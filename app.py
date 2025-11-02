@@ -1,5 +1,6 @@
 # app.py
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, make_response
+from weasyprint import HTML, CSS
 import user_manager 
 import data_manager 
 import db_setup
@@ -161,6 +162,55 @@ def show_billing(stay_id):
         total_bill=total_bill
     )
 
+@app.route('/facture/pdf/<int:stay_id>', methods=['GET'])
+@login_required
+def generate_invoice_pdf(stay_id):
+    """Génère la facture en PDF pour un séjour."""
+    stay_details = data_manager.get_stay_details(stay_id)
+    if not stay_details:
+        flash("Erreur : Séjour non trouvé.", 'error')
+        return redirect(url_for('reception'))
+
+    ordered_items = data_manager.get_stay_ordered_items(stay_id)
+    cost_services = stay_details['solde_actuel']
+
+    checkin_dt = datetime.strptime(stay_details['date_checkin'], '%Y-%m-%d %H:%M:%S')
+    checkout_dt_now = datetime.now()
+
+    duration = checkout_dt_now - checkin_dt
+    num_nights = duration.days
+
+    if duration.seconds > 3600:
+        num_nights += 1
+    if num_nights == 0:
+        num_nights = 1
+
+    cost_room_stay = num_nights * stay_details['prix_nuit']
+    total_bill = cost_room_stay + cost_services
+
+    # Rendre le template HTML avec les données
+    html_out = render_template(
+        'facture_pdf_a4.html',
+        stay=stay_details,
+        ordered_items=ordered_items,
+        checkin_date=checkin_dt,
+        checkout_date=checkout_dt_now,
+        num_nights=num_nights,
+        cost_room_stay=cost_room_stay,
+        cost_services=cost_services,
+        total_bill=total_bill
+    )
+
+    # Créer le PDF en mémoire
+    pdf = HTML(string=html_out).write_pdf()
+
+    # Créer une réponse HTTP avec le PDF
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'inline; filename=Facture_{stay_details["client_nom"]}.pdf'
+
+    return response
+
 @app.route('/checkout/confirmer/<int:stay_id>', methods=['POST'])
 @login_required
 def confirm_checkout(stay_id):
@@ -230,7 +280,12 @@ def submit_pos_order():
         order_id = data_manager.create_pos_order(user_id, cart_items, payment_type, stay_id)
 
         if order_id:
-            flash(f"Commande N°{order_id} validée avec succès !", 'success')
+            # Modifié pour inclure un lien d'impression
+            print_link = url_for('generate_pos_ticket_pdf', order_id=order_id)
+            flash(f"""
+                Commande N°{order_id} validée avec succès !
+                <a href='{print_link}' target='_blank' class='print-ticket-link'>Imprimer le Ticket</a>
+            """, 'success')
         else:
             flash("Erreur lors de la création de la commande.", 'error')
 
@@ -238,6 +293,33 @@ def submit_pos_order():
         flash(f"Une erreur est survenue : {e}", 'error')
     
     return redirect(url_for('pos_interface'))
+
+@app.route('/pos/ticket/<int:order_id>')
+@login_required
+def generate_pos_ticket_pdf(order_id):
+    """Génère un ticket de caisse POS en PDF."""
+    order_details = data_manager.get_order_details(order_id)
+
+    if not order_details:
+        flash("Commande non trouvée.", 'error')
+        return redirect(url_for('pos_interface'))
+
+    # Rendre le template HTML avec les données
+    html_out = render_template(
+        'ticket_pos_80mm.html',
+        order_details=order_details,
+        datetime=datetime # Fournir le module datetime au template
+    )
+
+    # Créer le PDF en mémoire
+    pdf = HTML(string=html_out).write_pdf()
+
+    # Créer une réponse HTTP
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'inline; filename=Ticket_{order_id}.pdf'
+
+    return response
 
 # ----------------------------------------------------------------------
 # --- MODULE : ADMINISTRATION ---

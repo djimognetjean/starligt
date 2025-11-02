@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Facture - {{ stay.client_nom }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #333;
+        }
+        .invoice-box {
+            max-width: 800px;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+            font-size: 16px;
+            line-height: 24px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+        }
+        .header .hotel-info {
+            text-align: left;
+        }
+        .header .invoice-info {
+            text-align: right;
+        }
+        .header h1 {
+            color: #1a1a1a;
+            margin: 0;
+        }
+        .client-info {
+            margin-bottom: 40px;
+        }
+        .details-table {
+            width: 100%;
+            line-height: inherit;
+            text-align: left;
+            border-collapse: collapse;
+        }
+        .details-table th, .details-table td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .details-table th {
+            background-color: #f7f7f7;
+            font-weight: bold;
+        }
+        .details-table .item-description {
+            width: 60%;
+        }
+        .details-table .item-total {
+            text-align: right;
+        }
+        .totals {
+            margin-top: 30px;
+            float: right;
+            width: 40%;
+            text-align: right;
+        }
+        .totals-table {
+            width: 100%;
+        }
+        .totals-table td {
+            padding: 5px;
+        }
+        .totals-table .label {
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-box">
+        <div class="header">
+            <div class="hotel-info">
+                <h1>STARLIGHT HOTEL</h1>
+                <p>
+                    Boulevard de la Liberté<br>
+                    Akwa, Douala, Cameroun<br>
+                    contact@starlighthotel.com
+                </p>
+            </div>
+            <div class="invoice-info">
+                <h2>FACTURE N° INV-{{ stay.id }}</h2>
+                <p>
+                    Date d'émission: {{ checkout_date.strftime('%d/%m/%Y') }}<br>
+                    Date de Check-in: {{ checkin_date.strftime('%d/%m/%Y %H:%M') }}<br>
+                    Date de Check-out: {{ checkout_date.strftime('%d/%m/%Y %H:%M') }}
+                </p>
+            </div>
+        </div>
+
+        <div class="client-info">
+            <strong>Facturé à :</strong><br>
+            {{ stay.client_nom }}<br>
+            Chambre N° {{ stay.numero }} ({{ stay.type_chambre }})
+        </div>
+
+        <table class="details-table">
+            <thead>
+                <tr>
+                    <th class="item-description">Description</th>
+                    <th>Nuits/Qté</th>
+                    <th class="item-total">Total (XAF)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Hébergement - Chambre {{ stay.numero }}</td>
+                    <td>{{ num_nights }} nuit(s)</td>
+                    <td class="item-total">{{ "{:,.0f}".format(cost_room_stay) }}</td>
+                </tr>
+                {% if ordered_items %}
+                    <tr>
+                        <td colspan="3"><strong>Services et consommations :</strong></td>
+                    </tr>
+                    {% for item in ordered_items %}
+                    <tr>
+                        <td>&nbsp;&nbsp;&nbsp;<em>{{ item.nom }}</em></td>
+                        <td>{{ item.quantite }}</td>
+                        <td class="item-total">{{ "{:,.0f}".format(item.sous_total) }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+
+        <div class="totals">
+            <table class="totals-table">
+                <tr>
+                    <td class="label">Sous-total Hébergement:</td>
+                    <td>{{ "{:,.0f}".format(cost_room_stay) }} XAF</td>
+                </tr>
+                <tr>
+                    <td class="label">Sous-total Services:</td>
+                    <td>{{ "{:,.0f}".format(cost_services) }} XAF</td>
+                </tr>
+                <tr>
+                    <td class="label" style="font-size: 1.2em; border-top: 2px solid #333;">Total à Payer:</td>
+                    <td style="font-size: 1.2em; border-top: 2px solid #333;"><strong>{{ "{:,.0f}".format(total_bill) }} XAF</strong></td>
+                </tr>
+            </table>
+        </div>
+
+        <div style="clear: both;"></div>
+
+        <div class="footer">
+            Merci de votre confiance et à bientôt !<br>
+            Starlight Hotel - Where stars come to rest.
+        </div>
+    </div>
+</body>
+</html>

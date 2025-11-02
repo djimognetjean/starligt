@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Ticket de Caisse N°{{ order_details.order.id }}</title>
+    <style>
+        @page {
+            /* Largeur de 80mm, hauteur auto. Marges minimales. */
+            size: 80mm 200mm;
+            margin: 2mm;
+        }
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 10pt; /* Taille de police lisible pour un ticket */
+            color: #000;
+            text-align: center;
+        }
+        .ticket-box {
+            width: 100%;
+        }
+        .header {
+            padding-bottom: 5px;
+            border-bottom: 1px dashed #000;
+        }
+        h2 {
+            margin: 5px 0;
+            font-size: 14pt;
+        }
+        .info {
+            margin-top: 10px;
+            text-align: left;
+            font-size: 8pt;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 2px 0;
+        }
+        th {
+            border-bottom: 1px solid #000;
+        }
+        .item-row td {
+            text-align: left;
+        }
+        .item-row .price {
+            text-align: right;
+        }
+        .totals {
+            margin-top: 10px;
+            padding-top: 5px;
+            border-top: 1px dashed #000;
+        }
+        .totals .total-line {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 12pt;
+        }
+        .footer {
+            margin-top: 15px;
+            font-size: 8pt;
+        }
+    </style>
+</head>
+<body>
+    <div class="ticket-box">
+        <div class="header">
+            <h2>STARLIGHT HOTEL</h2>
+            <p>Ticket de Caisse</p>
+        </div>
+
+        <div class="info">
+            Ticket N°: {{ order_details.order.id }}<br>
+            Date: {{ datetime.strptime(order_details.order.date_heure, '%Y-%m-%d %H:%M:%S').strftime('%d/%m/%Y %H:%M') }}<br>
+            Vendeur: {{ order_details.order.nom_utilisateur }}<br>
+            {% if order_details.order.statut_paiement == 'Transféré' %}
+                Client: {{ order_details.order.client_nom }} (Ch. {{ order_details.order.chambre_numero }})
+            {% endif %}
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="text-align: left;">Article</th>
+                    <th>Qté</th>
+                    <th style="text-align: right;">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order_details.items %}
+                <tr class="item-row">
+                    <td>{{ item.nom }}</td>
+                    <td style="text-align: center;">{{ item.quantite }}</td>
+                    <td class="price">{{ "{:,.0f}".format(item.sous_total) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="totals">
+            <div class="total-line">
+                <span>TOTAL A PAYER</span>
+                <span>{{ "{:,.0f}".format(order_details.order.total_net) }} XAF</span>
+            </div>
+             <p style="text-align: left; font-size: 8pt; margin-top: 5px;">Mode: {{ order_details.order.mode_paiement }}</p>
+        </div>
+
+        <div class="footer">
+            Merci pour votre visite !
+        </div>
+    </div>
+</body>
+</html>

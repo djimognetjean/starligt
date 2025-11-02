@@ -72,13 +72,16 @@
             <h2>MONTANT TOTAL À PAYER</h2>
             <h1>{{ "%.0f"|format(total_bill) }} FCFA</h1>
             
-            <form method="POST" action="{{ url_for('confirm_checkout', stay_id=stay.id) }}">
+            <form method="POST" action="{{ url_for('confirm_checkout', stay_id=stay.id) }}" style="display: inline-block; margin-right: 10px;">
                 <input type="hidden" name="total_bill" value="{{ total_bill }}">
                 
                 <button type="submit" class="btn btn-checkout">
                     ✅ Confirmer le Check-out et Marquer comme Payé
                 </button>
             </form>
+            <a href="{{ url_for('generate_invoice_pdf', stay_id=stay.id) }}" target="_blank" class="btn">
+                📄 Imprimer la Facture
+            </a>
         </div>
     </div>
 {% endblock %}
