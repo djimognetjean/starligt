@@ -1,0 +1,11 @@
+# Créer le fichier requirements.txt avec les dépendances courantes pour Flask
+echo Flask==3.0.0> requirements.txt
+echo Flask-Login==0.6.3>> requirements.txt
+echo Werkzeug==3.0.1>> requirements.txt
+```
+
+Ou créez manuellement un fichier `requirements.txt` avec ce contenu :
+```
+Flask==3.0.0
+Flask-Login==0.6.3
+Werkzeug==3.0.1
