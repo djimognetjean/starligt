@@ -1,0 +1,128 @@
+{% extends "layout.html" %}
+{% block title %}Panneau d'Administration{% endblock %}
+
+{% block content %}
+<style>
+    .admin-container {
+        display: grid;
+        /* Grille à 3 colonnes pour Chambre, Produit, Utilisateur */
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+    }
+    .admin-card {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        display: flex; /* Permet au formulaire et à la liste de bien se placer */
+        flex-direction: column;
+    }
+    .admin-form { border-bottom: 2px solid #f0f0f0; padding-bottom: 1.5rem; }
+    .admin-form label { font-weight: 600; display: block; margin-top: 1rem; }
+    .admin-form input, .admin-form select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-sizing: border-box;
+        margin-top: 0.5rem;
+    }
+    /* La liste prendra l'espace restant */
+    .admin-list { flex-grow: 1; max-height: 400px; overflow-y: auto; margin-top: 1rem; }
+</style>
+
+<h1>Panneau d'Administration</h1>
+
+<div class="admin-container">
+    
+    <div class="admin-card">
+        <h2>Gestion des Chambres</h2>
+        <form method="POST" action="{{ url_for('admin_add_room') }}" class="admin-form">
+            <label for="numero">Numéro Chambre :</label>
+            <input type="text" name="numero" required>
+            <label for="type_chambre">Type :</label>
+            <select name="type_chambre">
+                <option>Confort</option>
+                <option>Élégance</option>
+                <option>Premium</option>
+                <option>Deluxes</option>
+                <option>Suites</option>
+            </select>
+            <label for="prix_nuit">Prix/Nuit (FCFA) :</label>
+            <input type="number" name="prix_nuit" required>
+            <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Ajouter Chambre</button>
+        </form>
+
+        <div class="admin-list">
+            <table class="dashboard-table">
+                {% for room in all_rooms %}
+                <tr>
+                    <td>Ch. {{ room.numero }} ({{ room.type_chambre }})</td>
+                    <td><a href="{{ url_for('admin_delete_room', room_id=room.id) }}" class="btn-sm" style="color: red;">Supprimer</a></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <div class="admin-card">
+        <h2>Gestion des Produits (POS)</h2>
+        <form method="POST" action="{{ url_for('admin_add_product') }}" class="admin-form">
+            <label for="nom">Nom Produit :</label>
+            <input type="text" name="nom" required>
+            <label for="prix_unitaire">Prix (FCFA) :</label>
+            <input type="number" name="prix_unitaire" required>
+            <label for="categorie">Catégorie :</label>
+            <input type="text" name="categorie" required>
+            <label for="type_vente">Type :</label>
+            <select name="type_vente">
+                <option>Consommation</option>
+                <option>Service Auxiliaire</option>
+            </select>
+            <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Ajouter Produit</button>
+        </form>
+
+        <div class="admin-list">
+            <table class="dashboard-table">
+                {% for product in all_products %}
+                <tr>
+                    <td>{{ product.nom }} ({{ product.categorie }})</td>
+                    <td><a href="{{ url_for('admin_delete_product', product_id=product.id) }}" class="btn-sm" style="color: red;">Supprimer</a></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <div class="admin-card">
+        <h2>Gestion des Utilisateurs</h2>
+        <form method="POST" action="{{ url_for('admin_add_user') }}" class="admin-form">
+            <label for="nom_utilisateur">Nom d'utilisateur :</label>
+            <input type="text" name="nom_utilisateur" required>
+            <label for="mot_de_passe">Mot de passe :</label>
+            <input type="password" name="mot_de_passe" required>
+            <label for="role">Rôle :</label>
+            <select name="role">
+                <option>Réceptionniste</option>
+                <option>Caissier</option>
+                <option>Superviseur</option>
+                <option>Admin</option>
+            </select>
+            <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Ajouter Utilisateur</button>
+        </form>
+
+        <div class="admin-list">
+            <table class="dashboard-table">
+                {% for user in all_users %}
+                <tr>
+                    <td>{{ user.nom_utilisateur }}</td>
+                    <td><strong>{{ user.role }}</strong></td>
+                    <td><a href="{{ url_for('admin_delete_user', user_id=user.id) }}" class="btn-sm" style="color: red;">Supprimer</a></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,195 @@
+/* static/style.css */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f4f7f6;
+    margin: 0;
+    color: #333;
+}
+
+/* --- Navigation (Barre Supérieure) --- */
+.navbar {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 60px;
+}
+
+.nav-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #d4af37; /* Or Starlight */
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+}
+
+.nav-links a, .nav-links span {
+    padding: 0 1rem;
+    text-decoration: none;
+    color: #555;
+    font-weight: 500;
+}
+
+.nav-links .logout-btn {
+    background-color: #fbebeb;
+    color: #c62828;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+}
+.nav-links .logout-btn:hover {
+    background-color: #f8e0e0;
+}
+
+/* --- Contenu Principal --- */
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+/* --- Tableau de Bord (Tables) --- */
+.dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    overflow: hidden; /* Pour les coins arrondis */
+}
+
+.dashboard-table th,
+.dashboard-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.dashboard-table th {
+    background-color: #fafafa;
+    font-weight: 600;
+    color: #555;
+}
+
+.dashboard-table tbody tr:hover {
+    background-color: #fdfcf7;
+}
+
+/* --- Boutons --- */
+.btn {
+    padding: 0.65rem 1.25rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #d4af37; /* Or Starlight */
+    color: white;
+}
+.btn-primary:hover {
+    background-color: #c09b2e;
+}
+
+/* --- Messages Flash --- */
+.flash-messages {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+.flash-success {
+    padding: 1rem;
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+    border-radius: 8px;
+}
+.flash-error {
+    padding: 1rem;
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ef9a9a;
+    border-radius: 8px;
+}
+/* static/style.css (AJOUTER CECI À LA FIN) */
+
+/* --- Page Facture / Check-out --- */
+.invoice-box {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.invoice-box h3 {
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 0.5rem;
+    margin-top: 1rem;
+    color: #d4af37; /* Or Starlight */
+}
+
+.total-box {
+    margin-top: 2rem;
+    padding: 2rem;
+    background-color: #fafafa;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.total-box h2 {
+    color: #555;
+    font-weight: 600;
+    margin: 0;
+}
+
+.total-box h1 {
+    color: #c62828; /* Rouge pour le montant total */
+    font-size: 3rem;
+    margin: 0.5rem 0 1.5rem 0;
+}
+
+.btn-checkout {
+    background-color: #4CAF50; /* Vert pour paiement */
+    color: white;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.btn-checkout:hover {
+    background-color: #45a049;
+}
+
+/* Bouton Facturer (plus petit) dans la table */
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    background-color: #e0e0e0;
+    color: #333;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+.btn-sm:hover {
+    background-color: #d1d1d1;
+}

@@ -1,0 +1,171 @@
+{% extends "layout.html" %}
+{% block title %}Point de Vente (POS){% endblock %}
+
+{% block content %}
+<style>
+    /* Styles spécifiques au POS */
+    .pos-container { display: flex; gap: 2rem; }
+    .product-grid { 
+        flex: 3; 
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 1rem;
+    }
+    .product-card {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .product-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .product-card .name { font-weight: 600; }
+    .product-card .price { color: #d4af37; font-weight: 700; margin-top: 0.5rem; }
+
+    .cart { 
+        flex: 2; 
+        background: #fff; 
+        padding: 1.5rem; 
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .cart-items { list-style: none; padding: 0; max-height: 300px; overflow-y: auto; }
+    .cart-item { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0; }
+    .cart-total { margin-top: 1.5rem; border-top: 2px solid #333; padding-top: 1rem; }
+    .cart-total h2 { display: flex; justify-content: space-between; font-size: 1.5rem; }
+</style>
+
+<div class="pos-container">
+
+    <div class="product-grid">
+        <h1>Menu (Bar/Resto)</h1>
+        {% for product in products %}
+        <div class="product-card" onclick="addToCart({{ product.id }}, '{{ product.nom }}', {{ product.prix_unitaire }})">
+            <div class="name">{{ product.nom }}</div>
+            <div class="price">{{ "%.0f"|format(product.prix_unitaire) }} FCFA</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="cart">
+        <h1>Panier</h1>
+        <ul id="cart-items-list" class="cart-items">
+            <li id="empty-cart-msg" style="text-align: center; color: #777;">Le panier est vide.</li>
+        </ul>
+        
+        <div class="cart-total">
+            <h2><span>TOTAL</span> <span id="cart-total">0 FCFA</span></h2>
+        </div>
+
+        <form id="pos-form" method="POST" action="{{ url_for('submit_pos_order') }}">
+            <input type="hidden" name="cart_data" id="cart-data-input">
+
+            <div style="margin-top: 2rem;">
+                <label for="payment-type" style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Mode de Paiement :</label>
+                <select id="payment-type" name="payment_type" onchange="toggleStaySelect(this.value)" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; background: white;">
+                    <option value="Espèces">Espèces</option>
+                    <option value="Carte">Carte de Crédit</option>
+                    <option value="Mobile">Mobile Money</option>
+                    <option value="Transfert Compte">Transférer au Compte Séjour</option>
+                </select>
+            </div>
+
+            <div id="stay-select-div" style="display:none; margin-top: 1rem;">
+                <label for="stay-id" style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Choisir le Séjour :</label>
+                <select id="stay-id" name="stay_id" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; background: white;">
+                    {% for stay in active_stays %}
+                        <option value="{{ stay.id }}">Ch. {{ stay.numero }} - {{ stay.client_nom }}</option>
+                    {% else %}
+                        <option value="" disabled>Aucun séjour actif</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-checkout" style="width: 100%; margin-top: 1.5rem;">Valider la Commande</button>
+        </form>
+    </div>
+
+</div>
+
+<script>
+    let cart = {}; // Panier : { product_id: { nom: '..', prix: '..', qte: '..' } }
+
+    function addToCart(id, nom, prix) {
+        if (cart[id]) {
+            // Incrémenter la quantité
+            cart[id].qte += 1;
+        } else {
+            // Ajouter nouveau produit
+            cart[id] = { nom: nom, prix: prix, qte: 1 };
+        }
+        updateCartDisplay();
+    }
+
+    function updateCartDisplay() {
+        const cartList = document.getElementById('cart-items-list');
+        const cartTotalEl = document.getElementById('cart-total');
+        const emptyMsg = document.getElementById('empty-cart-msg');
+        const cartDataInput = document.getElementById('cart-data-input');
+        
+        cartList.innerHTML = ''; // Vider la liste
+        let total = 0;
+
+        if (Object.keys(cart).length === 0) {
+            cartList.appendChild(emptyMsg);
+        } else {
+            for (const id in cart) {
+                const item = cart[id];
+                total += item.prix * item.qte;
+                
+                const li = document.createElement('li');
+                li.className = 'cart-item';
+                li.innerHTML = `
+                    <span><strong>${item.nom}</strong> (x${item.qte})</span>
+                    <span>${(item.prix * item.qte).toLocaleString('fr-FR')} FCFA</span>
+                `;
+                // Ajout d'un bouton supprimer (simplifié)
+                const removeBtn = document.createElement('button');
+                removeBtn.innerText = 'X';
+                removeBtn.style.color = 'red';
+                removeBtn.style.border = 'none';
+                removeBtn.style.cursor = 'pointer';
+                removeBtn.onclick = function() { removeFromCart(id); };
+                li.appendChild(removeBtn);
+                
+                cartList.appendChild(li);
+            }
+        }
+        
+        // Mettre à jour le total
+        cartTotalEl.innerText = `${total.toLocaleString('fr-FR')} FCFA`;
+        
+        // Mettre à jour le champ caché du formulaire
+        cartDataInput.value = JSON.stringify(cart);
+    }
+
+    function removeFromCart(id) {
+        if (cart[id]) {
+            if (cart[id].qte > 1) {
+                cart[id].qte -= 1;
+            } else {
+                delete cart[id];
+            }
+        }
+        updateCartDisplay();
+    }
+    
+    function toggleStaySelect(paymentType) {
+        const staySelectDiv = document.getElementById('stay-select-div');
+        if (paymentType === 'Transfert Compte') {
+            staySelectDiv.style.display = 'block';
+        } else {
+            staySelectDiv.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}

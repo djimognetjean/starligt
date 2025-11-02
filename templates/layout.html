@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Starlight POS{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="{{ url_for('reception') }}" class="nav-brand">Starlight POS</a>
+        ...
+        <div class="nav-links">
+            <a href="{{ url_for('reception') }}">🏨 Réception</a>
+            <a href="{{ url_for('pos_interface') }}">💰 Point de Vente (POS)</a>
+            
+            {% if user and user.role == 'Admin' %}
+            <a href="{{ url_for('admin_dashboard') }}">⚙️ Admin</a>
+            {% endif %}
+        </div>
+        <div class="nav-links">
+            <span>Connecté: <strong>{{ user.username }} ({{ user.role }})</strong></span>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Déconnexion</a>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flash-messages">
+                {% for category, message in messages %}
+                    <li class="flash-{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+
+    </div>
+
+</body>
+</html>

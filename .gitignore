@@ -1,0 +1,12 @@
+# Fichiers de base de données
+*.db
+*.sqlite
+*.sqlite3
+
+# Dossiers de cache Python
+__pycache__/
+*.pyc
+
+# Environnements virtuels (si vous en utilisez un)
+venv/
+.venv/

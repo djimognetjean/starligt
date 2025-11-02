@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block title %}Tableau de Bord Réception{% endblock %}
+
+{% block content %}
+    <h1>Tableau de Bord Réception</h1>
+    
+    <a href="{{ url_for('show_checkin_form') }}" class="btn btn-primary" style="margin-bottom: 1.5rem;">🔑 Nouveau Check-in</a>
+
+    <h2>Séjours en Cours</h2>
+
+    <table class="dashboard-table">
+        <thead>
+            <tr>
+                <th>Chambre N°</th>
+                <th>Nom du Client</th>
+                <th>Date d'Arrivée</th>
+                <th>Solde Actuel (FCFA)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stay in active_stays %}
+                <tr>
+                    <td><strong>{{ stay.numero }}</strong></td>
+                    <td>{{ stay.client_nom }}</td>
+                    <td>{{ stay.date_checkin.split(' ')[0] }}</td>
+                    <td>{{ "%.0f"|format(stay.solde_actuel) }}</td>
+                    <td>
+                       <a href="{{ url_for('show_billing', stay_id=stay.id) }}" class="btn-sm">Facturer / Check-out</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5" style="text-align: center; color: #777; padding: 2rem;">
+                        Aucun séjour en cours pour le moment.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

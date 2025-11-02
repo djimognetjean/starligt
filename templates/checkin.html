@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block title %}Nouveau Check-in{% endblock %}
+
+{% block content %}
+    <h1>Nouveau Check-in</h1>
+    <p>Remplissez les informations ci-dessous pour enregistrer un nouveau séjour.</p>
+
+    <form method="POST" action="{{ url_for('create_checkin') }}" class="dashboard-table" style="padding: 2rem;">
+        
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="client_nom" style="font-weight: 600;">Nom du Client :</label>
+            <input type="text" id="client_nom" name="client_nom" required style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; margin-top: 0.5rem;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="chambre_id" style="font-weight: 600;">Chambre Disponible :</label>
+            <select id="chambre_id" name="chambre_id" required style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; margin-top: 0.5rem; background-color: white;">
+                {% for room in available_rooms %}
+                    <option value="{{ room.id }}">
+                        Ch. {{ room.numero }} ({{ room.type_chambre }}) - {{ "%.0f"|format(room.prix_nuit) }} FCFA
+                    </option>
+                {% else %}
+                    <option disabled>Aucune chambre disponible</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="date_checkout_prevue" style="font-weight: 600;">Date de Départ Prévue :</label>
+            <input type="date" id="date_checkout_prevue" name="date_checkout_prevue" value="{{ default_checkout_date }}" required style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; margin-top: 0.5rem;">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Confirmer le Check-in</button>
+        <a href="{{ url_for('reception') }}" style="margin-left: 1rem; color: #777;">Annuler</a>
+    </form>
+{% endblock %}
