@@ -362,6 +362,22 @@ def admin_delete_user(user_id):
     return redirect(url_for('admin_dashboard'))
 
 # ----------------------------------------------------------------------
+# --- MODULE : REPORTING ---
+# ----------------------------------------------------------------------
+
+@app.route('/rapports')
+@admin_required
+def reporting_dashboard():
+    """Affiche le tableau de bord avec les indicateurs de performance."""
+    report_data = data_manager.get_reporting_data()
+
+    return render_template(
+        'reporting.html',
+        user=session['user'],
+        reports=report_data
+    )
+
+# ----------------------------------------------------------------------
 # --- DÉMARRAGE DE L'APPLICATION ---
 # ----------------------------------------------------------------------
 

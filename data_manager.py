@@ -123,6 +123,69 @@ def create_new_stay(room_id, client_name, date_checkout_prevue):
     except sqlite3.Error as e: return False
     finally: conn.close()
 
+# --- MODULE REPORTING ---
+def get_reporting_data():
+    """Calcule les indicateurs clés pour le tableau de bord."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    month_str = datetime.now().strftime('%Y-%m')
+
+    results = {
+        'taux_occupation': 0,
+        'revenus_jour': 0,
+        'revenus_mois': 0
+    }
+
+    try:
+        # 1. Taux d'occupation
+        cursor.execute("SELECT COUNT(*) FROM chambres")
+        total_rooms = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM sejours WHERE statut = 'Ouvert'")
+        occupied_rooms = cursor.fetchone()[0]
+
+        if total_rooms > 0:
+            results['taux_occupation'] = (occupied_rooms / total_rooms) * 100
+
+        # 2. Revenus du jour (Paiements directs POS + Check-outs finalisés)
+        # On somme les paiements directs (non-transferts) et les soldes finaux des séjours clôturés
+        cursor.execute("""
+            SELECT SUM(montant) FROM paiements
+            WHERE DATE(date_heure) = ? AND mode_paiement != 'Transfert Compte'
+        """, (today_str,))
+        revenus_pos_jour = cursor.fetchone()[0] or 0
+
+        cursor.execute("""
+            SELECT SUM(solde_actuel) FROM sejours
+            WHERE DATE(date_checkout_reelle) = ? AND statut = 'Clos'
+        """, (today_str,))
+        revenus_sejours_jour = cursor.fetchone()[0] or 0
+
+        results['revenus_jour'] = revenus_pos_jour + revenus_sejours_jour
+
+        # 3. Revenus du mois (Même logique que pour le jour)
+        cursor.execute("""
+            SELECT SUM(montant) FROM paiements
+            WHERE STRFTIME('%Y-%m', date_heure) = ? AND mode_paiement != 'Transfert Compte'
+        """, (month_str,))
+        revenus_pos_mois = cursor.fetchone()[0] or 0
+
+        cursor.execute("""
+            SELECT SUM(solde_actuel) FROM sejours
+            WHERE STRFTIME('%Y-%m', date_checkout_reelle) = ? AND statut = 'Clos'
+        """, (month_str,))
+        revenus_sejours_mois = cursor.fetchone()[0] or 0
+
+        results['revenus_mois'] = revenus_pos_mois + revenus_sejours_mois
+
+    except sqlite3.Error as e:
+        print(f"Erreur lors du calcul des rapports : {e}")
+    finally:
+        conn.close()
+
+    return results
+
 def get_stay_details(stay_id):
     conn = get_db_connection()
     cursor = conn.cursor()

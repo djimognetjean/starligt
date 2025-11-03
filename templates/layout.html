@@ -16,6 +16,7 @@
             <a href="{{ url_for('pos_interface') }}">💰 Point de Vente (POS)</a>
             
             {% if user and user.role == 'Admin' %}
+            <a href="{{ url_for('reporting_dashboard') }}">📊 Rapports</a>
             <a href="{{ url_for('admin_dashboard') }}">⚙️ Admin</a>
             {% endif %}
         </div>

@@ -3,6 +3,9 @@
 *.sqlite
 *.sqlite3
 
+# Fichiers journaux (logs)
+*.log
+
 # Dossiers de cache Python
 __pycache__/
 *.pyc

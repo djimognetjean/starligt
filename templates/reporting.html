@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block title %}Rapports de Performance{% endblock %}
+
+{% block content %}
+    <h1>Rapports de Performance</h1>
+
+    <div class="reporting-grid">
+        <div class="report-card">
+            <h2>Taux d'Occupation Actuel</h2>
+            <p class="report-value">{{ "%.2f"|format(reports.taux_occupation) }}%</p>
+            <small>Pourcentage de chambres actuellement occupées.</small>
+        </div>
+        <div class="report-card">
+            <h2>Revenus du Jour</h2>
+            <p class="report-value">{{ "%.0f"|format(reports.revenus_jour) }} FCFA</p>
+            <small>Total des revenus encaissés aujourd'hui (POS direct + check-outs).</small>
+        </div>
+        <div class="report-card">
+            <h2>Revenus du Mois</h2>
+            <p class="report-value">{{ "%.0f"|format(reports.revenus_mois) }} FCFA</p>
+            <small>Total des revenus encaissés ce mois-ci.</small>
+        </div>
+    </div>
+
+    <style>
+        .reporting-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .report-card {
+            background-color: #fff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .report-card h2 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            color: #333;
+        }
+        .report-card .report-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #007bff;
+            margin: 0.5rem 0;
+        }
+        .report-card small {
+            color: #777;
+        }
+    </style>
+{% endblock %}
